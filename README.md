@@ -1,42 +1,89 @@
-# Hangar 01 — Nu.D36 Biplane
+<div align="center">
 
-BMU1421 — Dijital Oyun Tasarımı (2026-2027 Güz)
-Hafta 01 laboratuvar ödevi: Blender'da 1930'lardan bir çift kanatlı eğitim uçağını
-(Nu.D36'dan esinlenerek) gerçek ölçekte modelleyip Unity'de pervanesini döndürmek.
+# ✈️ Hangar 01 — Nu.D36 Biplane
 
-## İçerik
+**BMU1421 · Dijital Oyun Tasarımı** — 2026-2027 Güz · Hafta 01
+
+*Blender'da 1930'lardan bir çift kanatlı eğitim uçağını (Nu.D36'dan esinlenerek)*
+*gerçek ölçekte modelleyip Unity'de pervanesini döndürme ödevi.*
+
+[![Ders Sayfası](https://img.shields.io/badge/Ders-BMU1421-1f6feb?style=flat-square)](https://davut.tech/courses/2026-2027/fall/BMU1421)
+[![Blender](https://img.shields.io/badge/Blender-5.2%20LTS-orange?style=flat-square&logo=blender)](https://www.blender.org/)
+[![Unity](https://img.shields.io/badge/Unity-6.3%20LTS-black?style=flat-square&logo=unity)](https://unity.com/)
+
+</div>
+
+<p align="center">
+  <img src="Kayit/model_showcase.png" width="720" alt="Nu.D36 model önizlemesi">
+</p>
+
+---
+
+## 📖 Özet
+
+Uçağın **tamamı Blender Python API'siyle koddan üretildi** — elle poligon poligon
+modelleme yerine, gerçek ölçülere (6.4 m gövde, 9.74 m üst kanat açıklığı, ~2.44 m
+yükseklik) sadık, tekrarlanabilir bir üretici script (`Blender/generate_nu_d36.py`)
+yazıldı. Script gövdeyi, çift kanadı (stagger'lı), kuyruğu, iniş takımını, motoru ve
+pervaneyi oluşturur, renklendirir, pervane hariç her şeyi `Nu_D36` adıyla birleştirir
+ve Unity için doğru ayarlarla FBX'e aktarır. Unity tarafında pervane sürekli döner ve
+uçak sahne içinde ileri hareket eder.
+
+## 🎥 Ekran Kaydı
+
+Pervanenin dönüşü ve uçağın hareketi:
+
+<video src="Kayit/ekran_kaydi.mp4" width="720" controls></video>
+
+*(Video bu sayfada oynatılmıyorsa [doğrudan buradan indirip izleyebilirsin](Kayit/ekran_kaydi.mp4).)*
+
+## 📁 İçerik
 
 | Dosya | Açıklama |
 |---|---|
 | `Assets/Models/Nu_D36.fbx` | Blender'da üretilen, Unity'ye aktarılan uçak modeli |
 | `Assets/Scripts/PervaneDondur.cs` | Pervaneyi sürekli döndüren betik (`Pervane` nesnesine bağlı) |
-| `Assets/Scripts/UcagiIlerlet.cs` | Uçağı ileri doğru hareket ettiren bonus betik (`Nu_D36` kök nesnesine bağlı) |
+| `Assets/Scripts/UcagiIlerlet.cs` | Uçağı otomatik ileri hareket ettiren + ok tuşlarıyla ekstra kontrol sağlayan bonus betik |
 | `Assets/Materials/` | Gövde (kırmızı), kanat (krem), motor/pervane (gri), pilot (deri), atkı (sarı) malzemeleri |
 | `Assets/Scenes/SampleScene.unity` | Modelin yerleştirilip test edildiği sahne |
 | `Blender/Nu_D36.blend` | Orijinal Blender kaynak dosyası |
 | `Blender/generate_nu_d36.py` | Modeli sıfırdan üreten Blender Python betiği |
+| `Kayit/ekran_kaydi.mp4` | Pervane + hareket ekran kaydı |
+| `oyun_ekran_goruntusu.png` | Game görünümünden, pervane dönerken alınmış ekran görüntüsü |
 
-Modelin kendisi `generate_nu_d36.py` adlı bir Blender Python betiği ile **kod üzerinden
-üretildi**: gövde, çift kanat (staggerlı), kuyruk, iniş takımı, motor ve pervane gerçek
-ölçülerinde (~6.4 m gövde, 9.74 m üst kanat açıklığı, ~2.44 m yükseklik) otomatik
-oluşturulup renklendirildi, pervane hariç her şey `Nu_D36` adıyla birleştirildi ve doğru
-FBX dışa aktarım ayarlarıyla (`-Z Forward`, `Y Up`, Apply Scale/Transform) kaydedildi.
+## ✅ Bonus Görevler
 
-## Bonus görevler
+| Görev | Durum |
+|---|---|
+| Pilot + rüzgârda uçuşan atkı (arka kokpit) | ✅ |
+| Yıldız motor (motorun önünde 9 silindir) | ✅ |
+| Uçağı ilerletme betiği | ✅ |
+| Kısa ekran kaydı | ✅ |
+| GitHub deposu | ✅ (bu depo) |
 
-- ✅ **Pilot + atkı** — arka kokpitte basit bir pilot başı ve rüzgârda uçuşan atkı
-- ✅ **Yıldız motor** — motorun önünde çember şeklinde 9 silindir
-- ✅ **Uçağı ilerlet** — `UcagiIlerlet.cs`, `Nu_D36` üzerinde aktif
-
-## Nasıl açılır
+## 🚀 Nasıl Çalıştırılır
 
 1. Unity Hub → **Unity 6.3 LTS (6000.3.25f1)** ile bu klasörü proje olarak aç.
-2. `Assets/Scenes/SampleScene.unity` sahnesini aç (otomatik açılır).
-3. Play'e bas: pervane döner, uçak ileri hareket eder.
+2. `Assets/Scenes/SampleScene.unity` sahnesi otomatik açılır.
+3. **Play**'e bas:
+   - Pervane sürekli döner (`PervaneDondur.cs`)
+   - Uçak otomatik olarak ileri gider; **↑/↓** (veya **W/S**) ile ileri/geri,
+     **←/→** (veya **A/D**) ile dönüş kontrol edilebilir (`UcagiIlerlet.cs`)
 
-## Ekran görüntüsü
+## 🛠️ Teknik Notlar
 
-`oyun_ekran_goruntusu.png` — Game görünümünden, pervane dönerken alınmış yakın çekim.
+- **Modelleme:** `bpy` (Blender Python API) ile primitive tabanlı, düşük-poligonlu
+  üretim — küp/silindir/koni ilkelleri + Boolean modifier ile kokpit oyukları.
+- **FBX dışa aktarım:** `axis_forward='-Z'`, `axis_up='Y'`, `apply_scale_options='FBX_SCALE_ALL'`,
+  `bake_space_transform=True` — Blender → Unity ekseni dönüşümü için standart ayarlar.
+- **Girdi sistemi:** Proje **yeni Input System**'i kullandığı için `UcagiIlerlet.cs`
+  `UnityEngine.InputSystem.Keyboard.current` ile okuma yapar (eski `Input.GetAxis`
+  bu projede sessizce çalışmaz).
 
 ---
-Dr. Öğr. Üyesi Davut ARI — [davut.tech/courses/2026-2027/fall/BMU1421](https://davut.tech/courses/2026-2027/fall/BMU1421)
+
+<div align="center">
+
+Dr. Öğr. Üyesi **Davut ARI** — [davut.tech/courses/2026-2027/fall/BMU1421](https://davut.tech/courses/2026-2027/fall/BMU1421)
+
+</div>
