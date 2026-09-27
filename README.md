@@ -13,6 +13,8 @@ Hafta 01 laboratuvar ödevi: Blender'da 1930'lardan bir çift kanatlı eğitim u
 | `Assets/Scripts/UcagiIlerlet.cs` | Uçağı ileri doğru hareket ettiren bonus betik (`Nu_D36` kök nesnesine bağlı) |
 | `Assets/Materials/` | Gövde (kırmızı), kanat (krem), motor/pervane (gri), pilot (deri), atkı (sarı) malzemeleri |
 | `Assets/Scenes/SampleScene.unity` | Modelin yerleştirilip test edildiği sahne |
+| `Blender/Nu_D36.blend` | Orijinal Blender kaynak dosyası |
+| `Blender/generate_nu_d36.py` | Modeli sıfırdan üreten Blender Python betiği |
 
 Modelin kendisi `generate_nu_d36.py` adlı bir Blender Python betiği ile **kod üzerinden
 üretildi**: gövde, çift kanat (staggerlı), kuyruk, iniş takımı, motor ve pervane gerçek
