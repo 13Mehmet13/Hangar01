@@ -25,8 +25,10 @@ degerlerinin isaretini (90 <-> -90) degistirerek ya da Unity'de Donus Ekseni'ni
 """
 
 import bpy
+import bmesh
 import os
 import math
+from mathutils import Vector
 
 # ---------------------------------------------------------------------------
 # Ayarlanabilir cikti klasoru
@@ -92,6 +94,37 @@ def set_material(obj, name, rgb):
     obj.data.materials.append(mat)
 
 
+def make_strut_between(name, p1, p2, radius=0.05, vertices=8):
+    p1 = Vector(p1)
+    p2 = Vector(p2)
+    mid = (p1 + p2) / 2
+    direction = p2 - p1
+    length = direction.length
+    bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=radius, depth=length, location=mid)
+    obj = bpy.context.active_object
+    obj.name = name
+    obj.rotation_euler = direction.to_track_quat('Z', 'Y').to_euler()
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    return obj
+
+
+def shear_top_y(obj, shear_amount):
+    """Ustteki (Z'si yuksek) verteksleri +Y'ye kaydirarak egimli/sweptback bir siluet verir."""
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(obj.data)
+    bm.verts.ensure_lookup_table()
+    max_z = max(v.co.z for v in bm.verts)
+    min_z = min(v.co.z for v in bm.verts)
+    mid_z = (max_z + min_z) / 2
+    for v in bm.verts:
+        if v.co.z > mid_z:
+            v.co.y += shear_amount
+    bmesh.update_edit_mesh(obj.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
 def boolean_cut(obj, cutter):
     mod = obj.modifiers.new(name="cut_" + cutter.name, type='BOOLEAN')
     mod.operation = 'DIFFERENCE'
@@ -133,7 +166,7 @@ UST_KANAT_Z = fuse_top + 0.7
 ALT_KANAT_Z = FUSE_CENTER_Z - 0.55 + 0.15
 
 ust_kanat = make_cube("UstKanat", 9.74, 1.5, 0.15, (0, -0.3, UST_KANAT_Z))
-alt_kanat = make_cube("AltKanat", 7.6, 1.3, 0.15, (0, 0, ALT_KANAT_Z))
+alt_kanat = make_cube("AltKanat", 8.5, 1.3, 0.15, (0, 0, ALT_KANAT_Z))
 set_material(ust_kanat, "Kanat_Krem", CREAM)
 set_material(alt_kanat, "Kanat_Krem", CREAM)
 
@@ -158,18 +191,21 @@ for d in dikmeler:
 # ---------------------------------------------------------------------------
 yatay_stab = make_cube("YatayStabilizor", 3.0, 0.9, 0.08, (0, 3.5, FUSE_CENTER_Z + 0.15))
 dikey_stab = make_cube("DikeyStabilizor", 0.08, 1.0, 1.0, (0, 3.5, FUSE_CENTER_Z + 0.6))
+shear_top_y(dikey_stab, 0.35)  # ust on kenari geriye cekilmis, egimli bir dumen
 set_material(yatay_stab, "Govde_Kirmizi", RED)
 set_material(dikey_stab, "Govde_Kirmizi", RED)
 
 WHEEL_R = 0.4
+FUSE_BOTTOM = FUSE_CENTER_Z - 0.55
 tekerlekler = []
 for x in (-1.8, 1.8):
     tekerlek = make_cylinder(f"Tekerlek_{x}", WHEEL_R, 0.15, (x, 0, WHEEL_R),
                               rot_euler=(0, math.radians(90), 0))
-    strut = make_cylinder(f"IskeleDikmesi_{x}", 0.05,
-                           (FUSE_CENTER_Z - 0.55) - WHEEL_R,
-                           (x, 0, (WHEEL_R + (FUSE_CENTER_Z - 0.55)) / 2), vertices=8)
-    tekerlekler += [tekerlek, strut]
+    wheel_pos = (x, 0, WHEEL_R)
+    # V bicimli inis takimi: tekerlekten govde tabanina, biri one biri arkaya yaslanan iki dikme
+    strut_a = make_strut_between(f"IskeleDikmesi_{x}_On", wheel_pos, (x * 0.15, -0.35, FUSE_BOTTOM), radius=0.05)
+    strut_b = make_strut_between(f"IskeleDikmesi_{x}_Arka", wheel_pos, (x * 0.15, 0.35, FUSE_BOTTOM), radius=0.05)
+    tekerlekler += [tekerlek, strut_a, strut_b]
 
 kuyruk_kizagi = make_cube("KuyrukKizagi", 0.1, 0.3, 0.1, (0, 3.5, 0.45))
 for o in tekerlekler + [kuyruk_kizagi]:
@@ -237,6 +273,14 @@ nu_d36 = bpy.context.active_object
 nu_d36.name = "Nu_D36"
 bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
+# Origin'i govde ortasindan yer (Z=0, tekerlek tabani) seviyesine tasi.
+# Boylece Unity'de Position (0,0,0) verildiginde tekerlekler tam zemine oturur;
+# aksi halde govde-merkezli pivot yuzunden ucagin alt kismi (tekerlek, pervane)
+# eklenen Ground Plane'in altina gomulur.
+bpy.context.scene.cursor.location = (0, 0, 0)
+bpy.context.view_layer.objects.active = nu_d36
+bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+
 # Pervaneyi Nu_D36'nin altina parent yap (Unity Hierarchy'de Nu_D36 > Pervane olsun)
 bpy.ops.object.select_all(action='DESELECT')
 pervane.select_set(True)
@@ -267,6 +311,15 @@ bpy.ops.export_scene.fbx(
     object_types={'MESH'},
 )
 
+# BONUS: Tarayicida (three.js editor) gostermek icin glTF olarak da disa aktar
+glb_path = os.path.join(OUTPUT_DIR, "Nu_D36.glb")
+bpy.ops.export_scene.gltf(
+    filepath=glb_path,
+    use_selection=True,
+    export_format='GLB',
+)
+
 print("Bitti! Dosyalar su klasorde:", OUTPUT_DIR)
 print(" -", blend_path)
 print(" -", fbx_path)
+print(" -", glb_path)
