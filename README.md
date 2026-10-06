@@ -78,22 +78,6 @@ python3 -m http.server 8000
 | Kısa ekran kaydı | ✅ |
 | GitHub deposu | ✅ (bu depo) |
 
-## 🎯 Hafta 02 — Rota 02 (Vektörler, iç/dış çarpım, Gizmos)
-
-Geçen haftanın uçağı bu hafta havaya çıkıyor: gözlem balonuna yönelir, uçaksavar onu
-görüş konisine alır, dönüş yönünü dış çarpım söyler. Sahne: `Assets/Scenes/Rota02.unity`.
-
-| Dosya | Açıklama |
-|---|---|
-| `Assets/Scripts/HedefeGit.cs` | `fark.normalized` ile yön, `LookRotation` + `RotateTowards` ile yumuşak dönüş, `forward * hız` ile ilerleme; dış çarpımla kanat yatışı |
-| `Assets/Scripts/Radar.cs` | İç çarpım + kosinüs eşiği ile görüş konisi, dış çarpımla sağ/sol; `OnDrawGizmos` ile yeşil/kırmızı çizgi |
-| `Rota02/MDA_Calisma_Kagidi.md` | Doldurulmuş MDA çalışma kâğıdı (2048 üzerinden) |
-| `Rota02/scene_gizmos.png` | Gizmos çizgileri görünürken alınmış Scene ekran görüntüsü |
-
-Sahne yerleşimi: Uçak `(0,20,0)`, Balon (Ø6) `(40,30,60)`, Uçaksavar `(0,0,0)` + +Z yönünde namlu.
-Not: Rota 02 sahnesinde `UcagiIlerlet.cs` kaldırıldı; hareketi `HedefeGit.cs` yönetiyor ve
-kamera uçaktan ayrıldı (kanat yatışı görüntüyü yatırmasın diye).
-
 ## 🚀 Nasıl Çalıştırılır
 
 1. Unity Hub → **Unity 6.3 LTS (6000.3.25f1)** ile bu klasörü proje olarak aç.
